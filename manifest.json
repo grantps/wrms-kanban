@@ -2,8 +2,7 @@
     "manifest_version": 2,
     "name": "wrms-kanban",
     "version": "0.1.0",
-    "default_locale": "en",
-    "description": "Generates simple Kanban boards for WRMS ticket groups"
+    "description": "Generates simple Kanban boards for WRMS ticket groups",
     "icons": {
     },
     "page_action": {
@@ -13,7 +12,7 @@
         {
             "matches": ["https://wrms.catalyst.net.nz/wr.php*"],
             "css": [],
-            "js": ["wrms-kanban.js"]
+            "js": ["jquery.min.js", "wrms-kanban.js"]
         }
     ]
 }
