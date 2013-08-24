@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "wrms-kanban",
+    "version": "0.1.0",
+    "default_locale": "en",
+    "description": "Generates simple Kanban boards for WRMS ticket groups"
+    "icons": {
+    },
+    "page_action": {
+    },
+    "author": "jacques@catalyst.net.nz",
+    "content_scripts": [
+        {
+            "matches": ["https://wrms.catalyst.net.nz/wr.php*"],
+            "css": [],
+            "js": ["wrms-kanban.js"]
+        }
+    ]
+}
