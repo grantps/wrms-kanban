@@ -151,11 +151,11 @@
                     $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
                 }));
                 $(row).append(mk('div', ['col', 'span_1_of_6'], function(d){
-                    $(d).append(mk('a', [], function(a){
-                        $(a).text('[Close]');
-                        $(a).click(function(){
-                            kanban.hide();
-                        });
+                    $(d).append(mk('a', ['close'], function(a){
+                        $(a).text('[Close]')
+                            .click(function(){
+                                kanban.hide();
+                            });
                     }));
                 }));
             }));
@@ -216,8 +216,8 @@
         }
     };
 
-    // Do we need to add the button to the top menu?
     try{
+        maybe_create_overlay_dom();
         if (!$('#tmnu_kanban').length){
             var tmnu = $('#tmnu');
             tmnu.append(mk('span', ['tmnu_left']));
@@ -229,7 +229,11 @@
             }));
             tmnu.append(mk('span', ['tmnu_right']));
         }
-        maybe_create_overlay_dom();
+        $(document).keyup(function(e){
+            if (e.keyCode === 27){
+                kanban.hide();
+            }
+        });
     }catch(ex){
         console.log('Exception while adding Kanban menu entry [[' + ex + ']]');
     }

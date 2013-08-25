@@ -9,7 +9,12 @@
 }
 
 #kanban-overlay h1 {
-    text-align: center;
+  text-align: center;
+}
+
+#kanban-overlay a.close {
+  line-height: 40px;
+  cursor: pointer;
 }
 
 #kanban-overlay > div.section > div {
@@ -31,10 +36,6 @@
   width: 90%;
   padding: 5px 3px 5px 3px;
   margin-bottom: 3px;
-}
-
-#kanban-overlay a {
-  cursor: pointer;
 }
 
 ul.kanban-backlog li {
