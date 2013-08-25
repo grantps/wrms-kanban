@@ -144,23 +144,50 @@
             log.info('maybe_create_overlay_dom', 'already exists');
             return;
         }
-        $('body').append(mk('div', [], function(d){
-            $(d).attr('id', 'kanban-overlay');
-            $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
-            _.each(__category_meta, function(val, key){
-                $(d).append(mk('h2', [], function(h2){ $(h2).text(val.name); }));
-                $(d).append(mk('ul', ['kanban-' + key]));
-            });
-            //$(d).css('display', 'none');
+        $('body').append(mk('div', [], function(overlay){
+            $(overlay).attr('id', 'kanban-overlay');
+            $(overlay).append(mk('div', ['section', 'group'], function(d){
+                $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
+            }));
+            $(overlay).append(mk('div', ['section', 'group'], function(row){
+                ['backlog', 'this_week', 'cat_dev', 'client_uat', 'done'].forEach(function(cat){
+                    $(row).append(mk('div', ['col', 'span_1_of_5', 'kanban-' + cat], function(group){
+                        $(group).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }));
+                        $(group).append(mk('ul'));
+                    }));
+                });
+            }));
+            $(overlay).append(mk('div', ['section', 'group'], function(row){
+                $(row).append(mk('div', ['col', 'span_2_of_5']));
+                ['cat_test'].forEach(function(cat){
+                    $(row).append(mk('div', ['col', 'span_1_of_5', 'kanban-' + cat], function(group){
+                        $(group).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }));
+                        $(group).append(mk('ul'));
+                    }));
+                });
+                $(row).append(mk('div', ['col', 'span_2_of_5']));
+            }));
+            $(overlay).append(mk('div', ['section', 'group'], function(row){
+                $(row).append(mk('div', ['col', 'span_2_of_5']));
+                ['cat_blocked'].forEach(function(cat){
+                    $(row).append(mk('div', ['col', 'span_1_of_5', 'kanban-' + cat], function(group){
+                        $(group).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }));
+                        $(group).append(mk('ul'));
+                    }));
+                });
+                $(row).append(mk('div', ['col', 'span_2_of_5']));
+            }));
+            $(overlay).hide();
         }));
     }
 
     function lay_out_cards(m){
         __enter('lay_out_cards');
-        var overlay = $('#kanban-overlay');
-        overlay.find('ul').empty();
+        _.each(__category_meta, function(val, key){
+            $('div.kanban-' + key + ' > ul').empty();
+        });
         _.each(m, function(val, key){
-            $('#kanban-overlay > ul.kanban-' + val.__kanban.cat).append(mk('li', [], function(li){
+            $('div.kanban-' + val.__kanban.cat + ' > ul').append(mk('li', [], function(li){
                 log.info(JSON.stringify(val));
                 $(li).text(val.wr);
             }));
@@ -184,7 +211,8 @@
             child_relations = add_allocations(child_relations);
             model = update_model(child_relations, model);
             render_model(model);
-            //$('#kanban-overlay').css('display', 'grid');
+            $('#kanban-overlay').height($(document).height());
+            $('#kanban-overlay').show();
             __leave();
         },
         hide: function(){
