@@ -8,10 +8,18 @@
   background-color: #fff;
 }
 
-[class*='kanban-'] {
+#kanban-overlay h1 {
+    text-align: center;
+}
+
+#kanban-overlay > div.section > div {
   background-color: #fcfcfc;
   border: 1px solid #f6f6f6;
-  padding-left: 5px;
+}
+
+#kanban-overlay > div.section:nth-of-type(1) > div {
+  background-color: #fff;
+  border-width: 0px;
 }
 
 #kanban-overlay ul {
@@ -29,37 +37,37 @@
   cursor: pointer;
 }
 
-#kanban-overlay div.kanban-backlog li {
+ul.kanban-backlog li {
   background-color: #fff;
   border: 1px solid #da1715;
 }
 
-#kanban-overlay div.kanban-this_week li {
+ul.kanban-this_week li {
   background-color: #fff;
   border: 1px solid #f48705;
 }
 
-#kanban-overlay div.kanban-cat_dev li {
+ul.kanban-cat_dev li {
   background-color: #fff;
   border: 1px solid #f2b505;
 }
 
-#kanban-overlay div.kanban-cat_test li {
+ul.kanban-cat_test li {
   background-color: #fff;
   border: 1px solid #f2b505;
 }
 
-#kanban-overlay div.kanban-cat_blocked li {
+ul.kanban-cat_blocked li {
   background-color: #fff;
   border: 1px solid #da1715;
 }
 
-#kanban-overlay div.kanban-client_uat li {
+ul.kanban-client_uat li {
   background-color: #fff;
   border: 1px solid #adc10c;
 }
 
-#kanban-overlay div.kanban-done li {
+ul.kanban-done li {
   background-color: #fff;
   border: 1px solid #91ccff;
 }

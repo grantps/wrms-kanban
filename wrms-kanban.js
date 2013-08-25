@@ -144,34 +144,13 @@
             log.info('maybe_create_overlay_dom', 'already exists');
             return;
         }
-        function mkrow(cats){
-            if (!(cats.length === 5 || cats.length === 1)){
-                var msg = "Invalid number of categories in mkrow()";
-                log.error(msg);
-                throw msg;
-            }
-            return mk('div', ['section', 'group'], function(row){
-                if (cats.length === 1){
-                    $(row).append(mk('div', ['col', 'span_2_of_5']));
-                }
-                cats.forEach(function(cat){
-                    $(row).append(mk('div', ['col', 'span_1_of_5', 'kanban-' + cat], function(group){
-                        $(group).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }));
-                        $(group).append(mk('ul'));
-                    }));
-                });
-                if (cats.length === 1){
-                    $(row).append(mk('div', ['col', 'span_2_of_5']));
-                }
-            });
-        }
         $('body').append(mk('div', [], function(overlay){
             $(overlay).attr('id', 'kanban-overlay');
             $(overlay).append(mk('div', ['section', 'group'], function(row){
-                $(row).append(mk('div', ['col', 'span_4_of_5'], function(d){
+                $(row).append(mk('div', ['col', 'span_4_of_6'], function(d){
                     $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
                 }));
-                $(row).append(mk('div', ['col', 'span_1_of_5'], function(d){
+                $(row).append(mk('div', ['col', 'span_1_of_6'], function(d){
                     $(d).append(mk('a', [], function(a){
                         $(a).text('[Close]');
                         $(a).click(function(){
@@ -180,9 +159,20 @@
                     }));
                 }));
             }));
-            $(overlay).append(mkrow(['backlog', 'this_week', 'cat_dev', 'client_uat', 'done']));
-            $(overlay).append(mkrow(['cat_test']));
-            $(overlay).append(mkrow(['cat_blocked']));
+            $(overlay).append(mk('div', ['section', 'group'], function(row){
+                ['backlog', 'this_week', 'cat_dev', 'client_uat', 'done'].forEach(function(cat){
+                    $(row).append(mk('div', ['col', 'span_1_of_6'], function(group){
+                        $(group).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }));
+                        $(group).append(mk('ul', ['kanban-' + cat]));
+                        if (cat === 'cat_dev'){
+                            ['cat_test', 'cat_blocked'].forEach(function(extra){
+                                $(group).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[extra].name); }));
+                                $(group).append(mk('ul', ['kanban-' + extra]));
+                            });
+                        }
+                    }));
+                });
+            }));
             $(overlay).hide();
         }));
     }
@@ -190,12 +180,12 @@
     function lay_out_cards(m){
         __enter('lay_out_cards');
         _.each(__category_meta, function(val, key){
-            $('div.kanban-' + key + ' > ul').empty();
+            $('ul.kanban-' + key).empty();
         });
         _.each(m, function(val, key){
-            $('div.kanban-' + val.__kanban.cat + ' > ul').append(mk('li', [], function(li){
+            $('ul.kanban-' + val.__kanban.cat).append(mk('li', [], function(li){
                 log.info(JSON.stringify(val));
-                $(li).text('[#' + val.wr + '] ' + val.brief + ' [' + val.status + ']');
+                $(li).html('<b>[#' + val.wr + ']</b> ' + val.brief + ' <b>[' + val.status + ']</b>');
             }));
         });
         __leave();
