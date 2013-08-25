@@ -5,12 +5,13 @@
   left: 0px;
   width: 100%;
   height: 100%;
-  background-color: #f3f3f3;
+  background-color: #fff;
 }
 
 [class*='kanban-'] {
-  background-color: #fefefe;
-  border: 1px solid #cecece;
+  background-color: #fcfcfc;
+  border: 1px solid #f6f6f6;
+  padding-left: 5px;
 }
 
 #kanban-overlay ul {
@@ -29,36 +30,36 @@
 }
 
 #kanban-overlay div.kanban-backlog li {
-  background-color: #e8e8e8;
-  border: 1px solid #b8b8b8;
+  background-color: #fff;
+  border: 1px solid #da1715;
 }
 
 #kanban-overlay div.kanban-this_week li {
-  background-color: #e8e8e8;
-  border: 1px solid #b8b8b8;
+  background-color: #fff;
+  border: 1px solid #f48705;
 }
 
 #kanban-overlay div.kanban-cat_dev li {
-  background-color: #e8e8e8;
-  border: 1px solid #b8b8b8;
+  background-color: #fff;
+  border: 1px solid #f2b505;
 }
 
 #kanban-overlay div.kanban-cat_test li {
-  background-color: #e8e8e8;
-  border: 1px solid #b8b8b8;
+  background-color: #fff;
+  border: 1px solid #f2b505;
 }
 
 #kanban-overlay div.kanban-cat_blocked li {
-  background-color: #e8e8e8;
-  border: 1px solid #b8b8b8;
+  background-color: #fff;
+  border: 1px solid #da1715;
 }
 
 #kanban-overlay div.kanban-client_uat li {
-  background-color: #e8e8e8;
-  border: 1px solid #b8b8b8;
+  background-color: #fff;
+  border: 1px solid #adc10c;
 }
 
 #kanban-overlay div.kanban-done li {
-  background-color: #e8e8e8;
-  border: 1px solid #b8b8b8;
+  background-color: #fff;
+  border: 1px solid #91ccff;
 }
