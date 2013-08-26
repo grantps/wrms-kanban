@@ -8,13 +8,18 @@
   background-color: #fff;
 }
 
+#kanban-overlay .wrno {
+    display: none;
+}
+
 #kanban-overlay h1 {
   text-align: center;
 }
 
 #kanban-overlay a.btn {
-  line-height: 40px;
+  line-height: 45px;
   cursor: pointer;
+  padding-left: 10px;
 }
 
 #kanban-overlay > div.section > div {

@@ -1,17 +1,21 @@
 (function(){
+
     var __log_fn_name_stack = [];
+
     function __enter(name, silent){
         __log_fn_name_stack.unshift(name);
         if (!silent){
             log.info('{enter}');
         }
     }
+
     function __leave(silent){
         __log_fn_name_stack.shift();
         if (!silent){
             log.info('{leave}');
         }
     }
+
     var log = {
         error: function(func, msg, except){
             var a = Array.prototype.slice.call(arguments, 0);
@@ -29,7 +33,7 @@
                     a.unshift('{unknown}');
                 }
             }
-            console.log(  'wrms-kanban.js:' + a[0] + ' - ' + a[1]);
+            console.log('wrms-kanban.js:' + a[0] + ' - ' + a[1]);
         }
     };
 
@@ -57,11 +61,47 @@
         return o;
     }
 
+    var model_host = 'https://localhost:6001';
+    var __model = {};
+
     function store_model(m, callback){
-        setTimeout(function(){callback(null, true);}, 0);
+        var key = $('#tmnu > a:nth-of-type(1)').text();
+        log.info('store_model', 'Storing model for ' + key + '...');
+        $.ajax({
+            type: 'POST',
+            url: model_host + '/put',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: JSON.stringify({key: key, val: m})
+        })
+        .done(function(r){
+            log.info('store_model', 'done ' + r);
+            callback(null, r);
+        })
+        .fail(function(o, e){
+            log.error('store_model', 'failed', e);
+            callback(e);
+        });
     }
+
     function get_stored_model(callback){
-        setTimeout(function(){callback(null, {});}, 0);
+        var key = $('#tmnu > a:nth-of-type(1)').text();
+        log.info('get_stored_model', 'Getting model for ' + key + '...');
+        $.ajax({
+            type: 'GET',
+            url: model_host + '/get',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: {key: key}
+        })
+        .done(function(r){
+            log.info('get_stored_model', 'done ' + r);
+            callback(null, r);
+        })
+        .fail(function(o, e){
+            log.error('get_stored_model', 'failed', e);
+            callback(e);
+        });
     }
 
     function parse_child_relations(){
@@ -109,7 +149,6 @@
     };
 
     function update_model(rels, old_m){
-        __enter('update_model');
         var m = {};
         var filter = [
             {key: 'backlog',    re: /New request|Quoted/},
@@ -138,7 +177,6 @@
                 }
             });
         });
-        __leave();
         return m;
     }
 
@@ -154,6 +192,18 @@
                     $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
                 }));
                 $(row).append(mk('div', ['col', 'span_1_of_6'], function(d){
+                    $(d).append(mk('a', ['btn', 'save'], function(a){
+                        $(a).text('[Save]')
+                            .click(function(){
+                                store_model(__model, function(e, r){});
+                            });
+                    }));
+                    $(d).append(mk('a', ['btn', 'reset'], function(a){
+                        $(a).text('[Reset]')
+                            .click(function(){
+                                store_model({}, function(e, r){ kanban.show(); });
+                            });
+                    }));
                     $(d).append(mk('a', ['btn', 'close'], function(a){
                         $(a).text('[Close]')
                             .click(function(){
@@ -187,44 +237,51 @@
                 console.log(evt);
                 console.log(ui);
                 $(ui.item).addClass('modified');
+                var wr = $(ui.item).find('.wrno').text();
+                if (wr){
+                    var kb = __model[wr].__kanban;
+                    var new_cat = $(ui.item).parent().attr('class').match(/kanban-([_a-z]+)/);
+                    if (new_cat){
+                        kb.old_cat = kb.cat;
+                        kb.cat = new_cat[1];
+                        log.info('kanban ul:receive', wr + ' ' + kb.old_cat + ' -> ' + kb.cat);
+                    }else{
+                        log.error('kanban ul:receive', 'model not updated', 'Cannot determine parent class');
+                    }
+                }
+                //TODO: update __model
             }
         }).disableSelection();
     }
 
     function lay_out_cards(m){
-        __enter('lay_out_cards');
         _.each(__category_meta, function(val, key){
             $('ul.kanban-' + key).empty();
         });
         _.each(m, function(val, key){
             $('ul.kanban-' + val.__kanban.cat).append(mk('li', [], function(li){
-                log.info(JSON.stringify(val));
-                $(li).html('<b>[#' + val.wr + ']</b> ' + val.brief + ' <b>[' + val.status + ']</b>');
+                //log.info('lay_out_cards', JSON.stringify(val));
+                $(li).html('<b>[#' + val.wr + ']</b> ' + val.brief + ' <b>[' + val.status + ']</b><span class="wrno">' + val.wr + '</span>');
             }));
         });
-        __leave();
     }
 
     function render_model(m){
-        __enter('render_model');
-        log.info(JSON.stringify(m));
+        //log.info('render_model', JSON.stringify(m));
         lay_out_cards(m);
-        __leave();
     }
 
     var kanban = {
         show: function(){
-            __enter('kanban.show');
             var child_relations = parse_child_relations();
-            log.info('found ' + child_relations.length + ' "I" relations');
+            log.info('kanban.show', 'found ' + child_relations.length + ' "I" relations');
             get_stored_model(function(err, model){
                 child_relations = add_allocations(child_relations);
-                model = update_model(child_relations, model);
-                render_model(model);
+                __model = update_model(child_relations, model);
+                render_model(__model);
                 $('#kanban-overlay').height($(document).height());
                 $('#kanban-overlay').show();
             });
-            __leave();
         },
         hide: function(){
             $('#kanban-overlay').hide();

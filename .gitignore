@@ -3,4 +3,5 @@
 *.gz
 .*.swp
 
+node_modules
 tmp
