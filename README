@@ -1,0 +1,5 @@
+Prereq:
+  * cd server
+  * node ./server.js &
+  * stunnel -d 6001 -p stunnel.pem -r 6000 -D 7 -P ~/stunnel.pid
+
