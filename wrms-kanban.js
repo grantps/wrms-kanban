@@ -61,7 +61,7 @@
         return o;
     }
 
-    var model_host = 'https://localhost:6001';
+    var model_host = 'https://foo.wgtn.cat-it.co.nz:26701';
     var __model = {};
 
     function store_model(m, callback){

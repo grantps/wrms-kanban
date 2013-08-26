@@ -9,7 +9,7 @@
     },
     "author": "jacques@catalyst.net.nz",
     "permissions": [
-        "https://*/"
+        "https://foo.wgtn.cat-it.co.nz/"
     ],
     "content_scripts": [
         {

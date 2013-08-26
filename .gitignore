@@ -2,6 +2,7 @@
 *.csv
 *.gz
 .*.swp
+*.pem
 
 node_modules
 tmp
