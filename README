@@ -5,4 +5,9 @@ Prereq:
   * node ./server.js &
   * stunnel -d 6001 -p stunnel.pem -r 6000 -D 7 -P ~/stunnel.pid
 
+To create el cheapo SSL cert:
+  * openssl req -new -x509 -days 365 -nodes -out stunnel.pem -keyout stunnel.pem
+  * openssl gendh 2048 >> stunnel.pem
+  * Sanity check with: openssl x509 -subject -dates -fingerprint -in stunnel.pem
+
 GPLv3 - http://www.gnu.org/licenses/gpl-3.0.txt
