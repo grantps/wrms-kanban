@@ -57,8 +57,11 @@
         return o;
     }
 
-    function get_stored_model(){
-        return {};
+    function store_model(m, callback){
+        setTimeout(function(){callback(null, true);}, 0);
+    }
+    function get_stored_model(callback){
+        setTimeout(function(){callback(null, {});}, 0);
     }
 
     function parse_child_relations(){
@@ -183,7 +186,7 @@
             receive: function(evt, ui){
                 console.log(evt);
                 console.log(ui);
-                $(evt.toElement).addClass('modified');
+                $(ui.item).addClass('modified');
             }
         }).disableSelection();
     }
@@ -214,12 +217,13 @@
             __enter('kanban.show');
             var child_relations = parse_child_relations();
             log.info('found ' + child_relations.length + ' "I" relations');
-            var model = get_stored_model();
-            child_relations = add_allocations(child_relations);
-            model = update_model(child_relations, model);
-            render_model(model);
-            $('#kanban-overlay').height($(document).height());
-            $('#kanban-overlay').show();
+            get_stored_model(function(err, model){
+                child_relations = add_allocations(child_relations);
+                model = update_model(child_relations, model);
+                render_model(model);
+                $('#kanban-overlay').height($(document).height());
+                $('#kanban-overlay').show();
+            });
             __leave();
         },
         hide: function(){
