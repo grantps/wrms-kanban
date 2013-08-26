@@ -151,7 +151,7 @@
                     $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
                 }));
                 $(row).append(mk('div', ['col', 'span_1_of_6'], function(d){
-                    $(d).append(mk('a', ['close'], function(a){
+                    $(d).append(mk('a', ['btn', 'close'], function(a){
                         $(a).text('[Close]')
                             .click(function(){
                                 kanban.hide();
@@ -159,15 +159,17 @@
                     }));
                 }));
             }));
+            function add_list(to, cat){
+                $(to).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }))
+                     .append(mk('ul', ['wrl', 'kanban-' + cat]));
+            }
             $(overlay).append(mk('div', ['section', 'group'], function(row){
                 ['backlog', 'this_week', 'cat_dev', 'client_uat', 'done'].forEach(function(cat){
                     $(row).append(mk('div', ['col', 'span_1_of_6'], function(group){
-                        $(group).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }));
-                        $(group).append(mk('ul', ['kanban-' + cat]));
+                        add_list(group, cat);
                         if (cat === 'cat_dev'){
                             ['cat_test', 'cat_blocked'].forEach(function(extra){
-                                $(group).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[extra].name); }));
-                                $(group).append(mk('ul', ['kanban-' + extra]));
+                                add_list(group, extra);
                             });
                         }
                     }));
@@ -175,6 +177,15 @@
             }));
             $(overlay).hide();
         }));
+        $('#kanban-overlay ul').sortable({
+            connectWith: '#kanban-overlay ul',
+            revert: true,
+            receive: function(evt, ui){
+                console.log(evt);
+                console.log(ui);
+                $(evt.toElement).addClass('modified');
+            }
+        }).disableSelection();
     }
 
     function lay_out_cards(m){
@@ -216,25 +227,27 @@
         }
     };
 
-    try{
-        maybe_create_overlay_dom();
-        if (!$('#tmnu_kanban').length){
-            var tmnu = $('#tmnu');
-            tmnu.append(mk('span', ['tmnu_left']));
-            tmnu.append(mk('a', ['tmnu'], function(a){
-                $(a).text('Kanban')
-                    .attr('title', 'Show Kanban board for this WR group')
-                    .css('cursor', 'pointer')
-                    .click(kanban.show);
-            }));
-            tmnu.append(mk('span', ['tmnu_right']));
-        }
-        $(document).keyup(function(e){
-            if (e.keyCode === 27){
-                kanban.hide();
+    $(document).ready(function(){
+        try{
+            maybe_create_overlay_dom();
+            if (!$('#tmnu_kanban').length){
+                var tmnu = $('#tmnu');
+                tmnu.append(mk('span', ['tmnu_left']));
+                tmnu.append(mk('a', ['tmnu'], function(a){
+                    $(a).text('Kanban')
+                        .attr('title', 'Show Kanban board for this WR group')
+                        .css('cursor', 'pointer')
+                        .click(kanban.show);
+                }));
+                tmnu.append(mk('span', ['tmnu_right']));
             }
-        });
-    }catch(ex){
-        console.log('Exception while adding Kanban menu entry [[' + ex + ']]');
-    }
+            $(document).keyup(function(e){
+                if (e.keyCode === 27){
+                    kanban.hide();
+                }
+            });
+        }catch(ex){
+            console.log('Exception while adding Kanban menu entry [[' + ex + ']]');
+        }
+    });
 })();
