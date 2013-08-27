@@ -61,18 +61,19 @@
         return o;
     }
 
+
     var model_host = 'https://foo.wgtn.cat-it.co.nz:27601';
     var __model = {};
+    var __page_key = null;
 
     function store_model(m, callback){
-        var key = $('#tmnu > a:nth-of-type(1)').text();
-        log.info('store_model', 'Storing model for ' + key + '...');
+        log.info('store_model', 'Storing model for ' + __page_key + '...');
         $.ajax({
             type: 'POST',
             url: model_host + '/put',
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
-            data: JSON.stringify({key: key, val: m})
+            data: JSON.stringify({key: __page_key, val: m})
         })
         .done(function(r){
             log.info('store_model', 'done ' + r);
@@ -85,14 +86,13 @@
     }
 
     function get_stored_model(callback){
-        var key = $('#tmnu > a:nth-of-type(1)').text();
-        log.info('get_stored_model', 'Getting model for ' + key + '...');
+        log.info('get_stored_model', 'Getting model for ' + __page_key + '...');
         $.ajax({
             type: 'GET',
             url: model_host + '/get',
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
-            data: {key: key}
+            data: {key: __page_key}
         })
         .done(function(r){
             log.info('get_stored_model', 'done ' + r);
@@ -133,8 +133,26 @@
         return result;
     }
 
-    function add_allocations(rels){
-        return rels;
+    function add_allocations(m){
+        _.each(m, function(val, key){
+            $.ajax({
+                type: 'GET',
+                url: model_host + '/enrich',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: {key: __page_key, wr: key}
+            })
+            .done(function(r){
+                log.info('add_allocations', key + ': ' + JSON.stringify(r));
+                val.__kanban['users'] = r;
+                render_allocation(key, val);
+            })
+            .fail(function(o, e){
+                log.error('add_allocations', key + ' failed', e);
+                callback(e);
+            });
+        });
+        return m;
     }
 
     // TODO: combine with filter vv
@@ -192,16 +210,36 @@
                     $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
                 }));
                 $(row).append(mk('div', ['col', 'span_1_of_6'], function(d){
+                    function unmark_modified(){
+                        $('#kanban-overlay li.modified').each(function(){
+                            $(this).removeClass('modified');
+                        });
+                    }
                     $(d).append(mk('a', ['btn', 'save'], function(a){
                         $(a).text('[Save]')
                             .click(function(){
-                                store_model(__model, function(e, r){});
+                                store_model(__model, function(e, r){
+                                    if (e){
+                                        log.error('save-btn', 'failed to save model', e);
+                                    }else{
+                                        unmark_modified();
+                                        log.info('save-btn', 'saved model ' + r);
+                                    }
+                                });
                             });
                     }));
                     $(d).append(mk('a', ['btn', 'reset'], function(a){
                         $(a).text('[Reset]')
                             .click(function(){
-                                store_model({}, function(e, r){ kanban.show(); });
+                                store_model({}, function(e, r){
+                                    if (e){
+                                        log.error('save-btn', 'failed to save model', e);
+                                    }else{
+                                        unmark_modified();
+                                        log.info('save-btn', 'saved model ' + r);
+                                        kanban.show();
+                                    }
+                                });
                             });
                     }));
                     $(d).append(mk('a', ['btn', 'close'], function(a){
@@ -213,8 +251,12 @@
                 }));
             }));
             function add_list(to, cat){
-                $(to).append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }))
-                     .append(mk('ul', ['wrl', 'kanban-' + cat]));
+                $(to)//.append(mk('h2', [], function(h2){ $(h2).text(__category_meta[cat].name); }))
+                     .append(mk('ul', ['wrl', 'kanban-' + cat], function(ul){
+                        $(ul).append(mk('li', ['heading'], function(li){
+                            $(li).text(__category_meta[cat].name);
+                        }));
+                     }));
             }
             $(overlay).append(mk('div', ['section', 'group'], function(row){
                 ['backlog', 'this_week', 'cat_dev', 'client_uat', 'done'].forEach(function(cat){
@@ -231,6 +273,7 @@
             $(overlay).hide();
         }));
         $('#kanban-overlay ul').sortable({
+            items: 'li:not(.heading)',
             connectWith: '#kanban-overlay ul',
             revert: true,
             receive: function(evt, ui){
@@ -255,14 +298,18 @@
     }
 
     function lay_out_cards(m){
-        _.each(__category_meta, function(val, key){
-            $('ul.kanban-' + key).empty();
-        });
+        $('#kanban-overlay li:not(.heading)').remove();
         _.each(m, function(val, key){
             $('ul.kanban-' + val.__kanban.cat).append(mk('li', [], function(li){
                 //log.info('lay_out_cards', JSON.stringify(val));
-                $(li).html('<b>[#' + val.wr + ']</b> ' + val.brief + ' <b>[' + val.status + ']</b><span class="wrno">' + val.wr + '</span>');
+                $(li).html(
+                    '<span class="wrno_pretty"><a href="https://wrms.catalyst.net.nz/wr.php?edit=1&request_id=' + val.wr + '">[#' + val.wr + ']</a></span>' +
+                    '<span class="status">[' + val.status + ']</span>' +
+                    '<span class="brief">' + val.brief + '</span>' +
+                    '<span class="wrno">' + val.wr + '</span>'
+                );
             }));
+            render_allocation(key, val);
         });
     }
 
@@ -271,13 +318,27 @@
         lay_out_cards(m);
     }
 
+    function render_allocation(wr, data){
+        if (!data.__kanban || !data.__kanban.users || data.__kanban.users[0] === 'Nobody'){
+            return;
+        }
+        var li = $('span.wrno:contains(' + wr + ')').parent();
+        $(li).find('span.alloc').remove();
+        data.__kanban.users.forEach(function(u){
+            $(li).append(
+                mk('span', ['alloc'], function(s){
+                    $(s).text(u);
+                })
+            );
+        });
+    }
+
     var kanban = {
         show: function(){
             var child_relations = parse_child_relations();
             log.info('kanban.show', 'found ' + child_relations.length + ' "I" relations');
             get_stored_model(function(err, model){
-                child_relations = add_allocations(child_relations);
-                __model = update_model(child_relations, model);
+                __model = add_allocations(update_model(child_relations, model));
                 render_model(__model);
                 $('#kanban-overlay').height($(document).height());
                 $('#kanban-overlay').show();
@@ -290,6 +351,7 @@
 
     $(document).ready(function(){
         try{
+            __page_key = $('#tmnu > a:nth-of-type(1)').text();
             maybe_create_overlay_dom();
             if (!$('#tmnu_kanban').length){
                 var tmnu = $('#tmnu');
