@@ -8,6 +8,7 @@ app.use(express.bodyParser());
 app.post('/store',  _.bind(store.put, store));
 app.post('/put',    _.bind(store.put, store));
 app.get ('/get',    _.bind(store.get, store));
+app.get ('/enrich', _.bind(store.enrich, store));
 
 var port = 27600;
 
