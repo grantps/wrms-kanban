@@ -8,9 +8,6 @@
     "page_action": {
     },
     "author": "jacques@catalyst.net.nz",
-    "permissions": [
-        "https://foo.wgtn.cat-it.co.nz/"
-    ],
     "content_scripts": [
         {
             "matches": ["https://wrms.catalyst.net.nz/wr.php*"],
