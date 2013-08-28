@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
-  <app appid='fjkhpckohdnoillgfnpoihhdagodiolc'>
-    <updatecheck codebase='http://foo.wgtn.cat-it.co.nz/wrms-kanban.crx' version='0.1.0' />
-  </app>
-</gupdate>
