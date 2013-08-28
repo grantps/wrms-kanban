@@ -237,11 +237,9 @@
                         function(){
                             $('span.alloc.dimmed').removeClass('dimmed');
                             $('span.alloc:not(:contains(' + u + '))').addClass('dimmed');
-                            console.log('dimming ' + u);
                         },
                         function(){
                             $('span.alloc.dimmed').removeClass('dimmed');
-                            console.log('undimming ' + u);
                         }
                     );
                 })
