@@ -37,17 +37,25 @@
 #kanban-overlay li > span.alloc {
   width: 100%;
   display: block;
-  margin-bottom: 1px;
+  margin-bottom: 3px;
+  padding: 10px 0px 10px 0px;
+  font-size: 1.5em;
 }
 
 #kanban-overlay h1 {
   text-align: center;
+  font-size: 2em;
+  color: #000;
+}
+
+#kanban-overlay a {
+  cursor: pointer;
+  color: #000;
 }
 
 #kanban-overlay a.btn {
+  text-align: right;
   line-height: 45px;
-  cursor: pointer;
-  padding-left: 10px;
 }
 
 #kanban-overlay > div.section > div {
@@ -93,37 +101,44 @@
 
 ul.kanban-backlog li {
   background-color: #fff;
-  border: 1px solid #da1715;
+  border: 1px solid #c00;
+}
+
+#kanban-overlay span.alloc.dimmed {
+  opacity: 0.5;
 }
 
 ul.kanban-backlog li.heading,
 ul.kanban-backlog li > span.alloc {
-  background-color: #FCDCDC;
-  border: 1px solid #da1715;
+  color: #fff;
+  background-color: #f44;
+  border: 1px solid #c00;
 }
 
 ul.kanban-this_week li {
   background-color: #fff;
-  border: 1px solid #f48705;
+  border: 1px solid #93c;
 }
 
 ul.kanban-this_week li.heading,
 ul.kanban-this_week li > span.alloc {
-  background-color: #FCE1C0;
-  border: 1px solid #f48705;
+  color: #fff;
+  background-color: #a6c;
+  border: 1px solid #93c;
 }
 
 ul.kanban-cat_dev li {
   background-color: #fff;
-  border: 1px solid #f2b505;
+  border: 1px solid #f80;
 }
 
 ul.kanban-cat_dev li.heading,
 ul.kanban-cat_dev li > span.alloc,
 ul.kanban-cat_test li.heading,
 ul.kanban-cat_test li > span.alloc {
-  background-color: #FCECBD;
-  border: 1px solid #f2b505;
+  color: #fff;
+  background-color: #fb3;
+  border: 1px solid #f80;
 }
 
 ul.kanban-cat_test li {
@@ -133,33 +148,36 @@ ul.kanban-cat_test li {
 
 ul.kanban-cat_blocked li {
   background-color: #fff;
-  border: 1px solid #da1715;
+  border: 1px solid #c00;
 }
 
 ul.kanban-cat_blocked li.heading,
 ul.kanban-cat_blocked li > span.alloc {
-  background-color: #FCDCDC;
-  border: 1px solid #da1715;
+  color: #fff;
+  background-color: #f44;
+  border: 1px solid #c00;
 }
 
 ul.kanban-client_uat li {
   background-color: #fff;
-  border: 1px solid #adc10c;
+  border: 1px solid #690;
 }
 
 ul.kanban-client_uat li.heading,
 ul.kanban-client_uat li > span.alloc {
-  background-color: #F1FAAA;
-  border: 1px solid #adc10c;
+  color: #fff;
+  background-color: #9c0;
+  border: 1px solid #690;
 }
 
 ul.kanban-done li {
   background-color: #fff;
-  border: 1px solid #91ccff;
+  border: 1px solid #09c;
 }
 
 ul.kanban-done li.heading,
 ul.kanban-done li > span.alloc {
-  background-color: #DCEDFC;
-  border: 1px solid #91ccff;
+  color: #fff;
+  background-color: #33b5e5;
+  border: 1px solid #09c;
 }

@@ -1,22 +1,10 @@
 (function(){
     var log = {
         error: function(func, msg, except){
-            var a = Array.prototype.slice.call(arguments, 0);
-            if (a.length < 3 && __log_fn_name_stack.length){
-                a.unshift(__log_fn_name_stack[0]);
-            }
-            console.error('wrms-kanban.js:' + a[0] + ' - ' + a[1] + (a[2] ? ' [[' + a[2] + ']]' : ''));
+            console.error('wrms-kanban.js:' + func + ' - ' + msg + (except ? ' [[' + except + ']]' : ''));
         },
         info: function(func, msg){
-            var a = Array.prototype.slice.call(arguments, 0);
-            if (a.length < 2){
-                if (__log_fn_name_stack.length){
-                    a.unshift(__log_fn_name_stack[0]);
-                }else{
-                    a.unshift('{unknown}');
-                }
-            }
-            console.log('wrms-kanban.js:' + a[0] + ' - ' + a[1]);
+            console.log('wrms-kanban.js:' + func + ' - ' + msg);
         }
     };
 
@@ -124,8 +112,12 @@
                         status: item.status[0],
                         brief: item.description[0],
                         cat: category_from_status(item.status[0]),
-                        users: item.allocated_to // possibly undefined
+                        users: item.allocated_to
                     };
+                    if (model[wr].users){
+                        var n = model[wr].users[0].replace(/ - Australia/, '');
+                        model[wr].users = n.split(/, /);
+                    }
                 });
                 callback(null, model);
             }catch(ex){
@@ -243,6 +235,17 @@
             $(li).append(
                 mk('span', ['alloc'], function(s){
                     $(s).text(u);
+                    $(s).hover(
+                        function(){
+                            $('span.alloc.dimmed').removeClass('dimmed');
+                            $('span.alloc:not(:contains(' + u + '))').addClass('dimmed');
+                            console.log('dimming ' + u);
+                        },
+                        function(){
+                            $('span.alloc.dimmed').removeClass('dimmed');
+                            console.log('undimming ' + u);
+                        }
+                    );
                 })
             );
         });
@@ -250,14 +253,6 @@
 
     var kanban = {
         show: function(){
-            get_children(function(e, r){
-                if (e){
-                    // TODO
-                    $('#kanban-overlay').hide();
-                    return;
-                }
-                __model = render_model(r);
-            });
             $('#kanban-overlay').height($(document).height());
             $('#kanban-overlay').show();
         },
@@ -285,6 +280,14 @@
                 if (e.keyCode === 27){
                     kanban.hide();
                 }
+            });
+            get_children(function(e, r){
+                if (e){
+                    // TODO
+                    //$('#kanban-overlay').hide();
+                    return;
+                }
+                __model = render_model(r);
             });
         }catch(ex){
             log.error('wrms-kanban', 'Exception while adding Kanban menu entry', ex);
