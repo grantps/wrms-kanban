@@ -139,16 +139,14 @@
         $('body').append(mk('div', [], function(overlay){
             $(overlay).attr('id', 'kanban-overlay');
             $(overlay).append(mk('div', ['section', 'group'], function(row){
-                $(row).append(mk('div', ['col', 'span_4_of_6'], function(d){
+                $(row).append(mk('div', ['col', 'span_6_of_6'], function(d){
                     $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
                 }));
-                $(row).append(mk('div', ['col', 'span_1_of_6'], function(d){
-                    $(d).append(mk('a', ['btn', 'close'], function(a){
-                        $(a).text('[Close]')
-                            .click(function(){
-                                kanban.hide();
-                            });
-                    }));
+                $(row).append(mk('div', ['btn', 'close'], function(d){
+                    $(d).text('X')
+                        .click(function(){
+                            kanban.hide();
+                        });
                 }));
             }));
             function add_list(to, cat){
