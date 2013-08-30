@@ -216,16 +216,8 @@
                     }));
                 }));
                 $(li).append(mk('span', ['status'], '[' + val.status + ']'))
-                     .append(mk('span', ['brief'], '[' + val.brief + ']'))
+                     .append(mk('span', ['brief'], val.brief))
                      .append(mk('span', ['wrno'], '[' + val.wr + ']'));
-                /*
-                $(li).html(
-                    '<span class="wrno_pretty"><a href="https://wrms.catalyst.net.nz/wr.php?edit=1&request_id=' + val.wr + '">[#' + val.wr + ']</a></span>' +
-                    '<span class="status">[' + val.status + ']</span>' +
-                    '<span class="brief">' + val.brief + '</span>' +
-                    '<span class="wrno">' + val.wr + '</span>'
-                );
-                */
             }));
             render_allocation(key, val);
         });
@@ -238,20 +230,28 @@
         }
         var li = $('span.wrno:contains(' + wr + ')').parent();
         $(li).find('span.alloc').remove();
+        var dir = 'https://directory.wgtn.cat-it.co.nz/staff_photos/',
+            no_photo = 'url(https://directory.wgtn.cat-it.co.nz/images/no_photo.png)';
         data.users.forEach(function(u){
+            var user_class = u.replace(/[ ]+/g, '_').toLowerCase();
             $(li).append(
-                mk('span', ['alloc'], function(s){
-                    $(s).text(u);
+                mk('span', ['alloc', user_class], function(s){
+                    $(s).html('<span>&nbsp;</span>')
+                        .css('background-image', 'url(' + dir + user_class + '.jpg), ' + no_photo)
+                        .css('background-repeat', 'no-repeat')
+                        .css('background-size', 'contain');
                     $(s).hover(
                         function(){
                             $('span.alloc.bright').removeClass('bright');
                             $('li.dimmed').removeClass('dimmed');
                             $('#kanban-overlay li').each(function(){
-                                var s = $(this).find('span.alloc:contains(' + u + ')');
+                                var s = $(this).find('span.alloc.' + user_class);
                                 if (s.length){
                                     s.addClass('bright');
                                 }else{
-                                    $(this).addClass('dimmed');
+                                    if ($(this).hasClass('heading') === false){
+                                        $(this).addClass('dimmed');
+                                    }
                                 }
                             });
                         },
