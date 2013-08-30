@@ -1,4 +1,20 @@
+/* Tweaked values from Responsive Grid System's 5col.css */
+.span_1_of_5 {
+  width: 17%;
+}
+.span_5_of_5 {
+  width: 100%;
+}
+
+@media only screen and (max-width: 480px) {
+  .span_1_of_5 {
+    width: 100%;
+  }
+}
+
+
 #kanban-overlay {
+  padding-left: 2%;
   z-index: 1500;
   position: absolute;
   top: 0px;
@@ -41,11 +57,16 @@
 }
 
 #kanban-overlay li > span.alloc {
-  width: 100%;
   display: block;
   margin-bottom: 3px;
-  padding: 10px 0px 10px 0px;
-  font-size: 1.5em;
+  padding: 5px 0px 5px 0px;
+  opacity: 0.5;
+  width: 40%;
+}
+
+#kanban-overlay span.alloc.bright {
+  opacity: 1.0;
+  color: #fff;
 }
 
 #kanban-overlay h1 {
@@ -67,15 +88,16 @@
 
 #kanban-overlay > div.section:nth-of-type(1) > div.btn.close {
   position: absolute;
-  top: 10px;
+  top: 30px;
   left: 90%;
-  width: 30px;
-  height: 40px;
-  line-height: 40px;
+  width: 24px;
+  height: 30px;
+  line-height: 30px;
+  text-align: left;
+  padding-right: 5px;
   font-size: 2em;
   color: #ffe4e4;
-  background-color: #f44;
-  border-top: 1px solid #c00;
+  background-color: #c00;
   cursor: pointer;
 }
 
@@ -94,7 +116,7 @@
 }
 
 #kanban-overlay li {
-  width: 90%;
+  width: 95%;
   padding: 5px 0px 5px 0px;
   margin-bottom: 3px;
   cursor: move;
@@ -103,6 +125,10 @@
 #kanban-overlay li.heading {
   text-align: center;
   font-weight: bold;
+}
+
+#kanban-overlay li.dimmed {
+  opacity: 0.5;
 }
 
 #kanban-overlay li.modified {
@@ -114,7 +140,9 @@
 #kanban-overlay li.modified > span.alloc {
   background-color: #ccc;
   border-top: 1px solid #eee;
+  border-right: 1px solid #eee;
   border-bottom: 1px solid #eee;
+  opacity: 0.5;
 }
 
 ul.kanban-backlog li {
@@ -122,15 +150,12 @@ ul.kanban-backlog li {
   border: 1px solid #c00;
 }
 
-#kanban-overlay span.alloc.dimmed {
-  opacity: 0.5;
-}
-
 ul.kanban-backlog li.heading,
 ul.kanban-backlog li > span.alloc {
   color: #ffe4e4;
   background-color: #f44;
   border-top: 1px solid #c00;
+  border-right: 1px solid #c00;
   border-bottom: 1px solid #c00;
 }
 
@@ -144,6 +169,7 @@ ul.kanban-this_week li > span.alloc {
   color: #f5eafa;
   background-color: #a6c;
   border-top: 1px solid #93c;
+  border-right: 1px solid #93c;
   border-bottom: 1px solid #93c;
 }
 
@@ -153,18 +179,17 @@ ul.kanban-cat_dev li {
 }
 
 ul.kanban-cat_dev li.heading,
-ul.kanban-cat_dev li > span.alloc,
-ul.kanban-cat_test li.heading,
-ul.kanban-cat_test li > span.alloc {
+ul.kanban-cat_dev li > span.alloc {
   color: #fff6df;
   background-color: #fb3;
   border-top: 1px solid #f80;
+  border-right: 1px solid #f80;
   border-bottom: 1px solid #f80;
 }
 
 ul.kanban-cat_test li {
   background-color: #fff;
-  border: 1px solid #f2b505;
+  border: 1px solid #690;
 }
 
 ul.kanban-cat_blocked li {
@@ -177,6 +202,7 @@ ul.kanban-cat_blocked li > span.alloc {
   color: #ffe4e4;
   background-color: #f44;
   border-top: 1px solid #c00;
+  border-right: 1px solid #c00;
   border-bottom: 1px solid #c00;
 }
 
@@ -186,10 +212,13 @@ ul.kanban-client_uat li {
 }
 
 ul.kanban-client_uat li.heading,
-ul.kanban-client_uat li > span.alloc {
+ul.kanban-client_uat li > span.alloc,
+ul.kanban-cat_test li.heading,
+ul.kanban-cat_test li > span.alloc {
   color: #f0f8db;
   background-color: #9c0;
   border-top: 1px solid #690;
+  border-right: 1px solid #690;
   border-bottom: 1px solid #690;
 }
 
@@ -203,5 +232,6 @@ ul.kanban-done li > span.alloc {
   color: #e2f4fb;
   background-color: #33b5e5;
   border-top: 1px solid #09c;
+  border-right: 1px solid #09c;
   border-bottom: 1px solid #09c;
 }

@@ -12,7 +12,7 @@
     "content_scripts": [
         {
             "matches": ["https://wrms.catalyst.net.nz/wr.php*"],
-            "css": ["css/col.css", "css/6cols.css", "wrms-kanban.css"],
+            "css": ["css/col.css", "wrms-kanban.css"],
             "js": ["js/jquery.min.js", "js/jquery-ui.min.js", "js/underscore-min.js", "wrms-kanban.js"]
         }
     ]

@@ -8,14 +8,14 @@
         }
     };
 
-    function mk(type, classes, fn){
+    function mk(type, classes, fn_or_val){
         var o = document.createElement(type);
-        if (!fn){
+        if (!fn_or_val){
             if (typeof(classes) === 'function'){
-                fn = classes;
+                fn_or_val = classes;
                 classes = undefined;
             }else{
-                fn = function(x){ return x; }
+                fn_or_val = function(x){ return x; }
             }
         }
         if (!classes){
@@ -25,7 +25,11 @@
             $(o).addClass(c);
         });
         try{
-            fn(o);
+            if (typeof(fn_or_val) === 'function'){
+                fn_or_val(o);
+            }else{
+                $(o).text(fn_or_val);
+            }
         }catch(ex){
             log.error('mk', 'exception while creating ' + type, ex);
         }
@@ -37,18 +41,11 @@
     var __parent_wr = null;
 
     var __wrms_status_map = {
-        'On Hold': 'H',
         'Quote Approved': 'A',
         'Quoted': 'Q',
         'Testing': 'T',
-        'Finished': 'F',
-        'Allocated': 'L',
-        'In Progress': 'I',
-        'Cancelled': 'C',
-        'New request': 'N',
         'Reviewed': 'R',
         'New request': 'N',
-        'Reviewed': 'R',
         'On Hold': 'H',
         'Cancelled': 'C',
         'In Progress': 'I',
@@ -56,8 +53,6 @@
         'Finished': 'F',
         'Provide Feedback': 'K',
         'Testing/Signoff': 'T',
-        'Quoted': 'Q',
-        'Quote Approved': 'A',
         'Needs Documenting': 'D',
         'Ready for Staging': 'S',
         'Production Ready': 'P',
@@ -72,13 +67,13 @@
     };
 
     var __category_meta = {
-        backlog:    {name: 'Backlog',   statuses: ['New request', 'Quoted']},
-        this_week:  {name: 'This week', statuses: ['Allocated', 'Quote Approved']},
+        backlog:    {name: 'Backlog',   statuses: ['New request']},
+        this_week:  {name: 'Next up', statuses: ['Allocated', 'Quote Approved']},
         cat_dev:    {name: 'Dev',       statuses: ['In Progress', 'Ongoing Maintenance', 'Needs Documenting',
                                                    'Provide Feedback', 'Reviewed', 'Development Complete',
                                                    'Failed Testing']},
         cat_test:   {name: 'Test',      statuses: ['Ready for Staging', 'Catalyst Testing', 'QA Approved']},
-        cat_blocked:{name: 'Blocked',   statuses: ['Need Info', 'On Hold', 'Blocked']},
+        cat_blocked:{name: 'Blocked',   statuses: ['Need Info', 'Quoted', 'On Hold', 'Blocked']},
         client_uat: {name: 'UAT',       statuses: ['Pending QA', 'Testing/Signoff']},
         done:       {name: 'Done',      statuses: ['Production Ready', 'Finished', 'Cancelled']}
     };
@@ -139,7 +134,7 @@
         $('body').append(mk('div', [], function(overlay){
             $(overlay).attr('id', 'kanban-overlay');
             $(overlay).append(mk('div', ['section', 'group'], function(row){
-                $(row).append(mk('div', ['col', 'span_6_of_6'], function(d){
+                $(row).append(mk('div', ['col', 'span_5_of_5'], function(d){
                     $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
                 }));
                 $(row).append(mk('div', ['btn', 'close'], function(d){
@@ -158,12 +153,15 @@
             }
             $(overlay).append(mk('div', ['section', 'group'], function(row){
                 ['backlog', 'this_week', 'cat_dev', 'client_uat', 'done'].forEach(function(cat){
-                    $(row).append(mk('div', ['col', 'span_1_of_6'], function(group){
+                    $(row).append(mk('div', ['col', 'span_1_of_5'], function(group){
                         add_list(group, cat);
-                        if (cat === 'cat_dev'){
-                            ['cat_test', 'cat_blocked'].forEach(function(extra){
-                                add_list(group, extra);
-                            });
+                        switch (cat){
+                            case 'this_week':
+                                add_list(group, 'cat_blocked');
+                                break;
+                            case 'cat_dev':
+                                add_list(group, 'cat_test');
+                                break;
                         }
                     }));
                 });
@@ -211,12 +209,23 @@
         $('#kanban-overlay li:not(.heading)').remove();
         _.each(m, function(val, key){
             $('ul.kanban-' + val.cat).append(mk('li', [], function(li){
+                $(li).append(mk('span', ['wrno_pretty'], function(span){
+                    $(span).append(mk('a', [], function(a){
+                        $(a).attr('href', 'https://wrms.catalyst.net.nz/wr.php?edit=1&request_id=' + val.wr);
+                        $(a).text('[#' + val.wr + ']');
+                    }));
+                }));
+                $(li).append(mk('span', ['status'], '[' + val.status + ']'))
+                     .append(mk('span', ['brief'], '[' + val.brief + ']'))
+                     .append(mk('span', ['wrno'], '[' + val.wr + ']'));
+                /*
                 $(li).html(
                     '<span class="wrno_pretty"><a href="https://wrms.catalyst.net.nz/wr.php?edit=1&request_id=' + val.wr + '">[#' + val.wr + ']</a></span>' +
                     '<span class="status">[' + val.status + ']</span>' +
                     '<span class="brief">' + val.brief + '</span>' +
                     '<span class="wrno">' + val.wr + '</span>'
                 );
+                */
             }));
             render_allocation(key, val);
         });
@@ -235,11 +244,20 @@
                     $(s).text(u);
                     $(s).hover(
                         function(){
-                            $('span.alloc.dimmed').removeClass('dimmed');
-                            $('span.alloc:not(:contains(' + u + '))').addClass('dimmed');
+                            $('span.alloc.bright').removeClass('bright');
+                            $('li.dimmed').removeClass('dimmed');
+                            $('#kanban-overlay li').each(function(){
+                                var s = $(this).find('span.alloc:contains(' + u + ')');
+                                if (s.length){
+                                    s.addClass('bright');
+                                }else{
+                                    $(this).addClass('dimmed');
+                                }
+                            });
                         },
                         function(){
-                            $('span.alloc.dimmed').removeClass('dimmed');
+                            $('span.alloc.bright').removeClass('bright');
+                            $('li.dimmed').removeClass('dimmed');
                         }
                     );
                 })
@@ -251,9 +269,14 @@
         show: function(){
             $('#kanban-overlay').height($(document).height());
             $('#kanban-overlay').show();
+            var h = window.location.href;
+            window.location.href = h + (h.match(/#kanban$/) ? '' :
+                                        h.match(/#$/)       ? 'kanban' :
+                                                              '#kanban');
         },
         hide: function(){
             $('#kanban-overlay').hide();
+            window.location.href = window.location.href.replace(/kanban$/, '');
         }
     };
 
@@ -279,12 +302,14 @@
             });
             get_children(function(e, r){
                 if (e){
-                    // TODO
-                    //$('#kanban-overlay').hide();
+                    log.error('get_children', 'unable to populate children', e);
                     return;
                 }
                 __model = render_model(r);
             });
+            if (window.location.href.match(/#kanban/)){
+                kanban.show();
+            }
         }catch(ex){
             log.error('wrms-kanban', 'Exception while adding Kanban menu entry', ex);
         }
