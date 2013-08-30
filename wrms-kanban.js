@@ -229,40 +229,42 @@
             return;
         }
         var li = $('span.wrno:contains(' + wr + ')').parent();
-        $(li).find('span.alloc').remove();
+        $(li).find('div.user_group').remove();
         var dir = 'https://directory.wgtn.cat-it.co.nz/staff_photos/',
             no_photo = 'url(https://directory.wgtn.cat-it.co.nz/images/no_photo.png)';
-        data.users.forEach(function(u){
-            var user_class = u.replace(/[ ]+/g, '_').toLowerCase();
-            $(li).append(
-                mk('span', ['alloc', user_class], function(s){
-                    $(s).html('<span>&nbsp;</span>')
-                        .css('background-image', 'url(' + dir + user_class + '.jpg), ' + no_photo)
-                        .css('background-repeat', 'no-repeat')
-                        .css('background-size', 'contain');
-                    $(s).hover(
-                        function(){
-                            $('span.alloc.bright').removeClass('bright');
-                            $('li.dimmed').removeClass('dimmed');
-                            $('#kanban-overlay li').each(function(){
-                                var s = $(this).find('span.alloc.' + user_class);
-                                if (s.length){
-                                    s.addClass('bright');
-                                }else{
-                                    if ($(this).hasClass('heading') === false){
-                                        $(this).addClass('dimmed');
+        $(li).append(mk('div', ['user_group', 'section', 'group'], function(ug){
+            data.users.forEach(function(u){
+                var user_class = u.replace(/[ ]+/g, '_').toLowerCase();
+                $(ug).append(
+                    mk('span', ['col', 'alloc', user_class], function(s){
+                        $(s).html('&nbsp;')
+                            .css('background-image', 'url(' + dir + user_class + '.jpg), ' + no_photo)
+                            .css('background-repeat', 'no-repeat')
+                            .css('background-size', 'contain');
+                        $(s).hover(
+                            function(){
+                                $('span.alloc.bright').removeClass('bright');
+                                $('li.dimmed').removeClass('dimmed');
+                                $('#kanban-overlay li').each(function(){
+                                    var s = $(this).find('span.alloc.' + user_class);
+                                    if (s.length){
+                                        s.addClass('bright');
+                                    }else{
+                                        if ($(this).hasClass('heading') === false){
+                                            $(this).addClass('dimmed');
+                                        }
                                     }
-                                }
-                            });
-                        },
-                        function(){
-                            $('span.alloc.bright').removeClass('bright');
-                            $('li.dimmed').removeClass('dimmed');
-                        }
-                    );
-                })
-            );
-        });
+                                });
+                            },
+                            function(){
+                                $('span.alloc.bright').removeClass('bright');
+                                $('li.dimmed').removeClass('dimmed');
+                            }
+                        );
+                    })
+                );
+            });
+        }));
     }
 
     var kanban = {
