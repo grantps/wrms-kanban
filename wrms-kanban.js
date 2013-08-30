@@ -234,7 +234,7 @@
             no_photo = 'url(https://directory.wgtn.cat-it.co.nz/images/no_photo.png)';
         $(li).append(mk('div', ['user_group', 'section', 'group'], function(ug){
             data.users.forEach(function(u){
-                var user_class = u.replace(/[ ]+/g, '_').toLowerCase();
+                var user_class = u.replace(/[() ]+/g, '_').toLowerCase();
                 $(ug).append(
                     mk('span', ['col', 'alloc', user_class], function(s){
                         $(s).html('&nbsp;')
