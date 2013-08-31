@@ -174,7 +174,12 @@
             revert: true,
             receive: function(evt, ui){
                 $(ui.item).addClass('modified');
-                var wr = $(ui.item).find('.wrno').text();
+                var wr_label = $(ui.item).find('.wrno').text();
+                var wr = parseInt(wr_label.replace(/[\[\]]/g, ''));
+                if (isNaN(wr)){
+                    log.error('kanban ul:receive', 'cannot extract WR number from ' + wr_label, 'Not a number');
+                    return;
+                }
                 var new_cat = $(ui.item).parent().attr('class').match(/kanban-([_a-z]+)/);
                 if (new_cat){
                     new_cat = new_cat[1];
@@ -182,27 +187,47 @@
                     log.error('kanban ul:receive', wr, 'Failed to determine parent class');
                     return;
                 }
-                var new_stat_long = __category_meta[new_cat].statuses[0];
-                var new_stat_short = __wrms_status_map[new_stat_long];
-                $.ajax({
-                    type: 'POST',
-                    url: '/api2/request_update',
-                    contentType: 'application/x-www-form-urlencoded',
-                    data: {
-                        request_id: wr,
-                        status: new_stat_short
-                    }
-                }).fail(function(o, e){
-                    log.error('kanban ul:receive', wr + ' failed to update status', e);
-                }).done(function(r){
-                    log.info('kanban ul:receive', 'updated ' + wr);
-                    $(ui.item).removeClass('modified');
-                    $(ui.item).find('span.status').text('[' + new_stat_long + ']');
-                    __model[wr].cat = new_cat;
-                    __model[wr].status = new_stat_long;
+                show_status_options(ui.item, new_cat, function (new_stat_long){
+                    var new_stat_short = __wrms_status_map[new_stat_long];
+                    $.ajax({
+                        type: 'POST',
+                        url: '/api2/request_update',
+                        contentType: 'application/x-www-form-urlencoded',
+                        data: {
+                            request_id: wr,
+                            status: new_stat_short
+                        }
+                    }).fail(function(o, e){
+                        log.error('kanban ul:receive', wr + ' failed to update status', e);
+                    }).done(function(r){
+                        log.info('kanban ul:receive', 'updated ' + wr + ' to ' + new_stat_long);
+                        $(ui.item).removeClass('modified');
+                        $(ui.item).find('span.status').text('[' + new_stat_long + ']');
+                        console.log(__model);
+                        __model[wr].cat = new_cat;
+                        __model[wr].status = new_stat_long;
+                    });
                 });
             }
         }).disableSelection();
+    }
+
+    function show_status_options(li, cat, handler){
+        var ud = $(li).find('div.update');
+        var h = '<span class="submit">Update</span><select name="new_status">';
+        var first = true;
+        __category_meta[cat].statuses.forEach(function(s){
+            h = h + '<option value="' + s + '"' + (first ? ' selected' : '') + '>' + s + '</option>';
+            first = false;
+        });
+        h = h + '</select>';
+        $(ud).empty()
+             .html(h)
+             .show();
+        $(ud).find('span.submit').click(function(){
+            $(ud).hide();
+            handler($(ud).find('select').val());
+        });
     }
 
     function render_model(m){
@@ -217,6 +242,7 @@
                 }));
                 $(li).append(mk('span', ['status'], '[' + val.status + ']'))
                      .append(mk('span', ['brief'], val.brief))
+                     .append(mk('div',  ['update']))
                      .append(mk('span', ['wrno'], '[' + val.wr + ']'));
             }));
             render_allocation(key, val);
