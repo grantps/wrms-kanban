@@ -144,6 +144,11 @@
   opacity: 0.5;
 }
 
+#kanban-overlay li.modified div.update > textarea.note.default {
+  font-style: italic;
+  color: #aaa;
+}
+
 #kanban-overlay li.modified div.update > span.submit {
   cursor: pointer;
 }

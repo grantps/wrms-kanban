@@ -187,7 +187,7 @@
                     log.error('kanban ul:receive', wr, 'Failed to determine parent class');
                     return;
                 }
-                show_status_options(ui.item, new_cat, function (new_stat_long){
+                show_status_options(ui.item, new_cat, function (new_stat_long, note){
                     var new_stat_short = __wrms_status_map[new_stat_long];
                     $.ajax({
                         type: 'POST',
@@ -195,6 +195,7 @@
                         contentType: 'application/x-www-form-urlencoded',
                         data: {
                             request_id: wr,
+                            note: note,
                             status: new_stat_short
                         }
                     }).fail(function(o, e){
@@ -214,20 +215,49 @@
 
     function show_status_options(li, cat, handler){
         var ud = $(li).find('div.update');
-        var h = '<span class="submit">Update</span><select name="new_status">';
-        var first = true;
-        __category_meta[cat].statuses.forEach(function(s){
-            h = h + '<option value="' + s + '"' + (first ? ' selected' : '') + '>' + s + '</option>';
-            first = false;
-        });
-        h = h + '</select>';
         $(ud).empty()
-             .html(h)
+             .append(
+                mk('textarea', ['note', 'default'], function(t){
+                    $(t).attr('rows', '3')
+                        .text('Changed status to ' + __category_meta[cat].statuses[0])
+                        .keypress(function(){
+                            $(this).removeClass('default');
+                        });
+                })
+             )
+             .append(
+                mk('select', [], function(select){
+                    var first = true;
+                    __category_meta[cat].statuses.forEach(function(s){
+                        $(select).append(
+                            mk('option', [], function(o){
+                                if (first){
+                                    $(o).prop('selected', true);
+                                    first = false;
+                                }
+                                $(o).attr('value', s)
+                                    .text(s);
+                            })
+                        );
+                        $(select).change(function(){
+                            $(ud).find('textarea.note.default').text('Changed status to ' + $(this).find('option:selected').text());
+                        });
+                    });
+                })
+             )
+             .append(
+                mk('span', ['submit'], function(s){
+                    $(s).text('Update')
+                        .click(function(){
+                            $(ud).hide();
+                            handler(
+                                $(ud).find('select').val(),
+                                $(ud).find('textarea.note').val()
+                            );
+                        });
+                })
+             )
              .show();
-        $(ud).find('span.submit').click(function(){
-            $(ud).hide();
-            handler($(ud).find('select').val());
-        });
     }
 
     function render_model(m){
