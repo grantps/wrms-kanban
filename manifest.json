@@ -5,6 +5,8 @@
     "update_url": "http://foo.wgtn.cat-it.co.nz/wrms-kanban.xml",
     "description": "Generates simple Kanban boards for WRMS ticket groups",
     "icons": {
+        "128": "logo_128.png",
+        "32": "logo_32.png"
     },
     "page_action": {
     },
