@@ -205,7 +205,6 @@
                         log.info('kanban ul:receive', 'updated ' + wr + ' to ' + new_status);
                         $(ui.item).removeClass('modified');
                         $(ui.item).find('span.status').text('[' + new_status + ']');
-                        console.log(__model);
                         __model[wr].cat = new_cat;
                         __model[wr].status = new_status;
                     });
