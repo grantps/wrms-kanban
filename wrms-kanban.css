@@ -93,12 +93,9 @@
   left: 90%;
   width: 24px;
   height: 30px;
-  line-height: 30px;
-  text-align: left;
-  padding-right: 5px;
-  font-size: 2em;
-  color: #ffe4e4;
-  background-color: #c00;
+  background-image: url(catimg/delete.png);
+  background-repeat: no-repeat;
+  background-position: center top;
   cursor: pointer;
 }
 

@@ -137,7 +137,7 @@
                     $(d).append(mk('h1', [], function(h1){ $(h1).text($('td.entry').eq(1).text()); }));
                 }));
                 $(row).append(mk('div', ['btn', 'close'], function(d){
-                    $(d).text('X')
+                    $(d).html('&nbsp;')
                         .click(function(){
                             kanban.hide();
                         });
@@ -186,26 +186,28 @@
                     log.error('kanban ul:receive', wr, 'Failed to determine parent class');
                     return;
                 }
-                show_status_options(ui.item, new_cat, function (new_stat_long, note){
-                    var new_stat_short = __wrms_status_map[new_stat_long];
+                show_status_options(ui.item, new_cat, function (new_status, note){
+                    var payload = {
+                        request_id: wr,
+                        status: __wrms_status_map[new_status]
+                    };
+                    if (note){
+                        payload['note'] = note;
+                    }
                     $.ajax({
                         type: 'POST',
                         url: '/api2/request_update',
                         contentType: 'application/x-www-form-urlencoded',
-                        data: {
-                            request_id: wr,
-                            note: note,
-                            status: new_stat_short
-                        }
+                        data: payload
                     }).fail(function(o, e){
                         log.error('kanban ul:receive', wr + ' failed to update status', e);
                     }).done(function(r){
-                        log.info('kanban ul:receive', 'updated ' + wr + ' to ' + new_stat_long);
+                        log.info('kanban ul:receive', 'updated ' + wr + ' to ' + new_status);
                         $(ui.item).removeClass('modified');
-                        $(ui.item).find('span.status').text('[' + new_stat_long + ']');
+                        $(ui.item).find('span.status').text('[' + new_status + ']');
                         console.log(__model);
                         __model[wr].cat = new_cat;
-                        __model[wr].status = new_stat_long;
+                        __model[wr].status = new_status;
                     });
                 });
             }
