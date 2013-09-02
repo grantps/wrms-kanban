@@ -93,24 +93,30 @@
     function get_children(callback){
         $.ajax({
             type: 'GET',
-            url: '/api2/search?filtertable=wrsearch&format=json&columns=request_id%2Cdescription%2Cstatus%2Callocated_to&offset=0&limit=200&q=childof%3A' + __parent_wr
+            url: '/api2/search?filtertable=wrsearch&format=json&columns=request_id%2Cdescription%2Cstatus%2Callocated_to%2Cunapproved_hours%2Capproved_hours%2Chours&offset=0&limit=200&q=childof%3A' + __parent_wr
         })
         .done(function(r){
             try{
+                function take_first_if(x){
+                    return x ? (x[0] || x) : null;
+                }
                 var model = {};
                 r = JSON.parse(r);
                 r.response.body.forEach(function(item){
-                    var wr = item.request_id[0];
+                    var wr = take_first_if(item.request_id);
+                    var stat = take_first_if(item.status);
                     model[wr] = {
-                        wr: wr,
-                        status: item.status[0],
-                        brief: item.description[0],
-                        cat: category_from_status(item.status[0]),
-                        users: item.allocated_to
+                        wr:     wr,
+                        status: stat,
+                        brief:  take_first_if(item.description),
+                        cat:    category_from_status(stat),
+                        users:  take_first_if(item.allocated_to),
+                        unapproved_hours:   take_first_if(item.unapproved_hours) || 0,
+                        approved_hours:     take_first_if(item.approved_hours) || 0,
+                        hours:              take_first_if(item.hours) || 0
                     };
                     if (model[wr].users){
-                        var n = model[wr].users[0].replace(/ - Australia/, '');
-                        model[wr].users = n.split(/, /);
+                        model[wr].users = model[wr].users.replace(/ - Australia/, '').split(/, /);
                     }
                 });
                 callback(null, model);
@@ -263,7 +269,7 @@
     function render_model(m){
         $('#kanban-overlay li:not(.heading)').remove();
         _.each(m, function(val, key){
-            $('ul.kanban-' + val.cat).append(mk('li', [], function(li){
+            var card = mk('li', [], function(li){
                 $(li).append(mk('span', ['wrno_pretty'], function(span){
                     $(span).append(mk('a', [], function(a){
                         $(a).attr('href', 'https://wrms.catalyst.net.nz/wr.php?edit=1&request_id=' + val.wr);
@@ -274,17 +280,40 @@
                      .append(mk('span', ['brief'], val.brief))
                      .append(mk('div',  ['update']))
                      .append(mk('span', ['wrno'], '[' + val.wr + ']'));
-            }));
-            render_allocation(key, val);
+            });
+            $('ul.kanban-' + val.cat).append(card);
+            render_budget(card, key, val);
+            render_allocation(card, key, val);
         });
         return m;
     }
 
-    function render_allocation(wr, data){
+    function render_budget(li, wr, data){
+        var max = data.approved_hours + data.unapproved_hours;
+        if (max < data.hours){
+            max = data.hours;
+        }
+        $(li).find('div.budget_group').remove();
+        if (max < 1){
+            return;
+        }
+        function pbar(n){
+            return function(o){
+                $(o).css('width', n + '%')
+                    .html('&nbsp;');
+            };
+        }
+        $(li).append(mk('div', ['budget_group'], function(group){
+                $(group).append(mk('div', ['ah'],      pbar(data.approved_hours/max*100)))
+                        .append(mk('div', ['uh'],      pbar(data.unapproved_hours/max*100)))
+                        .append(mk('div', ['actual'],  pbar(data.hours/max*100)));
+             }));
+    }
+
+    function render_allocation(li, wr, data){
         if (!data.users || data.users[0] === 'Nobody'){
             return;
         }
-        var li = $('span.wrno:contains(' + wr + ')').parent();
         $(li).find('div.user_group').remove();
         var dir = 'https://directory.wgtn.cat-it.co.nz/staff_photos/',
             no_photo = 'url(https://directory.wgtn.cat-it.co.nz/images/no_photo.png)';

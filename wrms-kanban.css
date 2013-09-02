@@ -56,6 +56,32 @@
   margin: 5px 0px 5px 0px;
 }
 
+#kanban-overlay li div.budget_group {
+  opacity: 0.75;
+  width: 90%;
+  margin-left: 5%;
+  margin-bottom: 2px;
+  height: 8px;
+}
+
+#kanban-overlay li div.budget_group > .ah {
+  height: 4px;
+  background-color: #09c;
+  float: left;
+}
+
+#kanban-overlay li div.budget_group > .uh {
+  height: 4px;
+  background-color: #bef;
+  float: left;
+}
+
+#kanban-overlay li div.budget_group > .actual {
+  height: 4px;
+  background-color: #f44;
+  float: left;
+}
+
 #kanban-overlay li span.alloc {
   display: block;
   margin-bottom: 3px;
