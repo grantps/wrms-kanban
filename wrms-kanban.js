@@ -116,7 +116,7 @@
                         hours:              take_first_if(item.hours) || 0
                     };
                     if (model[wr].users){
-                        model[wr].users = model[wr].users.replace(/ - Australia/, '').split(/, /);
+                        model[wr].users = model[wr].users.replace(/'| \(Resigned\)| - Australia/g, '').split(/, /);
                     }
                 });
                 callback(null, model);
