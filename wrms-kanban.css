@@ -85,7 +85,6 @@
 #kanban-overlay li span.alloc {
   display: block;
   margin-bottom: 3px;
-  opacity: 0.5;
   margin-left: 2px;
   width: 30px;
   height: 40px;
@@ -152,7 +151,7 @@
 }
 
 #kanban-overlay li.dimmed {
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 #kanban-overlay li.modified {
@@ -164,7 +163,6 @@
 #kanban-overlay li.modified span.alloc {
   background-color: #ccc;
   border: 1px solid #eee;
-  opacity: 0.5;
 }
 
 #kanban-overlay li.modified div.update > textarea.note.default {
