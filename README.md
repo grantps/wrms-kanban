@@ -15,3 +15,9 @@ Others:
 ## License
 
 GPLv3 - http://www.gnu.org/licenses/gpl-3.0.txt
+
+## Built with
+
+  * Responsive Grid System (http://www.responsivegridsystem.com/)
+  * jQuery core and UI (https://jquery.org/)
+  * Underscore (http://underscorejs.org/)
