@@ -179,12 +179,7 @@
             revert: true,
             receive: function(evt, ui){
                 $(ui.item).addClass('modified');
-                var wr_label = $(ui.item).find('.wrno').text();
-                var wr = parseInt(wr_label.replace(/[\[\]]/g, ''));
-                if (isNaN(wr)){
-                    log.error('kanban ul:receive', 'cannot extract WR number from ' + wr_label, 'Not a number');
-                    return;
-                }
+                var wr = $(ui.item).find('.wrno').text();
                 var new_cat = $(ui.item).parent().attr('class').match(/kanban-([_a-z]+)/);
                 if (new_cat){
                     new_cat = new_cat[1];
@@ -279,7 +274,7 @@
                 $(li).append(mk('span', ['status'], '[' + val.status + ']'))
                      .append(mk('span', ['brief'], val.brief))
                      .append(mk('div',  ['update']))
-                     .append(mk('span', ['wrno'], '[' + val.wr + ']'));
+                     .append(mk('span', ['wrno'], val.wr));
             });
             $('ul.kanban-' + val.cat).append(card);
             render_budget(card, key, val);
