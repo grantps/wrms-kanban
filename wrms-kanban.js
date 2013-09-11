@@ -1,4 +1,6 @@
 (function(){
+    var __refresh_interval = 5*60*1000;
+
     var log = {
         error: function(func, msg, except){
             console.error('wrms-kanban.js:' + func + ' - ' + msg + (except ? ' [[' + except + ']]' : ''));
@@ -90,45 +92,78 @@
         return result;
     }
 
-    function get_children(callback){
+    function fetch_children(callback){
         $.ajax({
             type: 'GET',
             url: '/api2/search?filtertable=wrsearch&format=json&columns=request_id%2Cdescription%2Cstatus%2Callocated_to%2Cunapproved_hours%2Capproved_hours%2Chours&offset=0&limit=200&q=childof%3A' + __parent_wr
         })
-        .done(function(r){
-            try{
-                function take_first_if(x){
-                    return x ? (x[0] || x) : null;
-                }
-                var model = {};
-                r = JSON.parse(r);
-                r.response.body.forEach(function(item){
-                    var wr = take_first_if(item.request_id);
-                    var stat = take_first_if(item.status);
-                    model[wr] = {
-                        wr:     wr,
-                        status: stat,
-                        brief:  take_first_if(item.description),
-                        cat:    category_from_status(stat),
-                        users:  take_first_if(item.allocated_to),
-                        unapproved_hours:   take_first_if(item.unapproved_hours) || 0,
-                        approved_hours:     take_first_if(item.approved_hours) || 0,
-                        hours:              take_first_if(item.hours) || 0
-                    };
-                    if (model[wr].users){
-                        model[wr].users = model[wr].users.replace(/'| \(Resigned\)| - Australia/g, '').split(/, /);
-                    }
-                });
-                callback(null, model);
-            }catch(ex){
-                log.error('get_children', 'failed for parent ' + __parent_wr, ex);
-                callback(ex);
-            }
-        })
+        .done(function(r){ callback(null, r); })
         .fail(function(o, e){
-            log.error('add_allocations', key + ' failed', e);
+            log.error('fetch_children', 'request failed', e);
             callback(e);
         });
+    }
+
+    function parse_model_from_json(response){
+        function take_first_if(x){
+            return x ? (x[0] || x) : null;
+        }
+        var model = {};
+        response.response.body.forEach(function(item){
+            var wr = take_first_if(item.request_id);
+            var stat = take_first_if(item.status);
+            model[wr] = {
+                wr:     wr,
+                status: stat,
+                brief:  take_first_if(item.description),
+                cat:    category_from_status(stat),
+                users:  take_first_if(item.allocated_to),
+                unapproved_hours:   take_first_if(item.unapproved_hours) || 0,
+                approved_hours:     take_first_if(item.approved_hours) || 0,
+                hours:              take_first_if(item.hours) || 0
+            };
+            if (model[wr].users){
+                model[wr].users = model[wr].users.replace(/'| \(Resigned\)| - Australia/g, '').split(/, /);
+            }
+        });
+        return model;
+    }
+
+    function load_children(callback){
+        fetch_children(function(e, r){
+            if (e){
+                callback(e);
+                return;
+            }
+            try{
+                var model = parse_model_from_json(JSON.parse(r));
+                callback(null, model);
+            }catch(ex){
+                log.error('load_children', 'failed for parent ' + __parent_wr, ex);
+                callback(ex);
+            }
+        });
+    }
+
+    function update_children(){
+        try{
+            if ($('#kanban-overlay').is(':visible')){
+                fetch_children(function(e, r){
+                    if (e){
+                        log.error('update_children', 'request failed', "couldn't complete XHR");
+                        return;
+                    }
+                    if ($('.modified').length){
+                        log.info('update_children', 'modifications in progress; discarding server updates');
+                        return;
+                    }
+                    __model = render_model(parse_model_from_json(JSON.parse(r)));
+                });
+            }
+        }catch(ex){
+            log.error('update_children', 'exception thrown', ex);
+        }
+        setTimeout(update_children, __refresh_interval);
     }
 
     function maybe_create_overlay_dom(){
@@ -261,25 +296,27 @@
              .show();
     }
 
+    function render_card(val, key){
+        var card = mk('li', [], function(li){
+            $(li).append(mk('span', ['wrno_pretty'], function(span){
+                $(span).append(mk('a', [], function(a){
+                    $(a).attr('href', 'https://wrms.catalyst.net.nz/wr.php?edit=1&request_id=' + val.wr);
+                    $(a).text('[#' + val.wr + ']');
+                }));
+            }));
+            $(li).append(mk('span', ['status'], '[' + val.status + ']'))
+                 .append(mk('span', ['brief'], val.brief))
+                 .append(mk('div',  ['update']))
+                 .append(mk('span', ['wrno'], val.wr));
+        });
+        $('ul.kanban-' + val.cat).append(card);
+        render_budget(card, key, val);
+        render_allocation(card, key, val);
+    }
+
     function render_model(m){
         $('#kanban-overlay li:not(.heading)').remove();
-        _.each(m, function(val, key){
-            var card = mk('li', [], function(li){
-                $(li).append(mk('span', ['wrno_pretty'], function(span){
-                    $(span).append(mk('a', [], function(a){
-                        $(a).attr('href', 'https://wrms.catalyst.net.nz/wr.php?edit=1&request_id=' + val.wr);
-                        $(a).text('[#' + val.wr + ']');
-                    }));
-                }));
-                $(li).append(mk('span', ['status'], '[' + val.status + ']'))
-                     .append(mk('span', ['brief'], val.brief))
-                     .append(mk('div',  ['update']))
-                     .append(mk('span', ['wrno'], val.wr));
-            });
-            $('ul.kanban-' + val.cat).append(card);
-            render_budget(card, key, val);
-            render_allocation(card, key, val);
-        });
+        _.each(m, render_card);
         return m;
     }
 
@@ -310,15 +347,25 @@
             return;
         }
         $(li).find('div.user_group').remove();
-        var dir = 'https://directory.wgtn.cat-it.co.nz/staff_photos/',
-            no_photo = 'url(https://directory.wgtn.cat-it.co.nz/images/no_photo.png)';
+        function pic_for_user(u){
+            var dir = 'https://directory.wgtn.cat-it.co.nz/staff_photos/',
+                no_photo = 'url(https://directory.wgtn.cat-it.co.nz/images/no_photo.png)';
+            switch (u){
+                case 'catalyst_sysadmin':
+                    return no_photo;
+                case 'matthew_b_gray':
+                    u = 'matthew_gray';
+                    break;
+            }
+            return 'url(' + dir + u + '.jpg), ' + no_photo;
+        }
         $(li).append(mk('div', ['user_group', 'section', 'group'], function(ug){
             data.users.forEach(function(u){
                 var user_class = u.replace(/[() ]+/g, '_').toLowerCase();
                 $(ug).append(
                     mk('span', ['col', 'alloc', user_class], function(s){
                         $(s).html('&nbsp;')
-                            .css('background-image', 'url(' + dir + user_class + '.jpg), ' + no_photo)
+                            .css('background-image', pic_for_user(user_class))
                             .css('background-repeat', 'no-repeat')
                             .css('background-size', 'contain');
                         $(s).hover(
@@ -382,9 +429,9 @@
                     kanban.hide();
                 }
             });
-            get_children(function(e, r){
+            load_children(function(e, r){
                 if (e){
-                    log.error('get_children', 'unable to populate children', e);
+                    log.error('load_children', 'unable to populate children', e);
                     return;
                 }
                 __model = render_model(r);
@@ -392,6 +439,7 @@
             if (window.location.href.match(/#kanban/)){
                 kanban.show();
             }
+            setTimeout(update_children, __refresh_interval);
         }catch(ex){
             log.error('wrms-kanban', 'Exception while adding Kanban menu entry', ex);
         }
