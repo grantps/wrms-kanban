@@ -12,6 +12,15 @@
   }
 }
 
+.alloc_tooltip {
+  z-index: 2500;
+  padding: 5px;
+  background-color: #333;
+  opacity: 0.8;
+  color: #fff;
+  position: absolute;
+  height: 1em;
+}
 
 #kanban-overlay {
   z-index: 1500;
@@ -98,7 +107,8 @@
 #kanban-overlay h1 {
   text-align: center;
   font-size: 2em;
-  color: #000;
+  color: #fff;
+  text-shadow: 1px 1px 5px #000;
 }
 
 #kanban-overlay > div.section > div {

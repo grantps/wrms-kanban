@@ -206,6 +206,9 @@
                     }));
                 });
             }));
+            $(overlay).append(mk('div', ['alloc_tooltip'], function(tip){
+                $(tip).hide();
+            }));
             $(overlay).hide();
         }));
         $('#kanban-overlay ul').sortable({
@@ -369,7 +372,12 @@
                             .css('background-repeat', 'no-repeat')
                             .css('background-size', 'contain');
                         $(s).hover(
-                            function(){
+                            function(ev){
+                                $('div.alloc_tooltip')
+                                    .text(u)
+                                    .css('top', ev.pageY - 30)
+                                    .css('left', ev.pageX + 10)
+                                    .show();
                                 $('span.alloc.bright').removeClass('bright');
                                 $('li.dimmed').removeClass('dimmed');
                                 $('#kanban-overlay li').each(function(){
@@ -384,6 +392,7 @@
                                 });
                             },
                             function(){
+                                $('.alloc_tooltip').hide();
                                 $('span.alloc.bright').removeClass('bright');
                                 $('li.dimmed').removeClass('dimmed');
                             }
