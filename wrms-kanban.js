@@ -421,17 +421,37 @@
     $(document).ready(function(){
         try{
             __parent_wr = $('#tmnu > a:nth-of-type(1)').text().match(/(\d+)/)[1];
+
             maybe_create_overlay_dom();
-            if (!$('#tmnu_kanban').length){
-                var tmnu = $('#tmnu');
-                tmnu.append(mk('span', ['tmnu_left']));
-                tmnu.append(mk('a', ['tmnu'], function(a){
-                    $(a).text('Kanban')
-                        .attr('title', 'Show Kanban board for this WR group')
-                        .css('cursor', 'pointer')
-                        .click(kanban.show);
-                }));
-                tmnu.append(mk('span', ['tmnu_right']));
+
+            var tmnu = $('#tmnu');
+            tmnu.append(mk('span', ['tmnu_left']));
+            tmnu.append(mk('a', ['tmnu'], function(a){
+                $(a).text('Kanban')
+                    .attr('title', 'Show Kanban board for this WR group')
+                    .css('cursor', 'pointer')
+                    .click(kanban.show);
+            }));
+            tmnu.append(mk('span', ['tmnu_right']));
+
+            try{
+                var details = $('table.wr-details').find('tr:nth-of-type(13) > td').text();
+                _.each(details.split(/\n/), function(line){
+                    var override = line.match(/\[kanban:\s*([a-zA-Z ]+?)\s*->\s*([a-zA-Z ]+?)\s*\]/);
+                    if (override){
+                        console.log(override[1] + '->' + override[2]);
+                        _.each(__category_meta, function(meta){
+                            console.log(override[1] + '|before: ' + JSON.stringify(meta));
+                            meta.statuses = _.without(meta.statuses, override[1]);
+                            if (meta.name === override[2]){
+                                meta.statuses.push(override[1]);
+                            }
+                            console.log(override[1] + '|after: ' + JSON.stringify(meta));
+                        });
+                    }
+                });
+            }catch(ex){
+                console.log('Exception while reading WR description [[' + ex + ']]');
             }
             $(document).keyup(function(e){
                 if (e.keyCode === 27){

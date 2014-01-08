@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "wrms-kanban",
-    "version": "0.6.9",
+    "version": "0.6.10",
     "update_url": "http://foo.wgtn.cat-it.co.nz/wrms-kanban.xml",
     "description": "Generates simple Kanban boards for WRMS ticket groups",
     "icons": {
