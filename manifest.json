@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "wrms-kanban",
-    "version": "0.6.10",
+    "version": "0.6.11",
     "update_url": "http://foo.wgtn.cat-it.co.nz/wrms-kanban.xml",
     "description": "Generates simple Kanban boards for WRMS ticket groups",
     "icons": {
@@ -13,7 +13,11 @@
     "author": "jacques@catalyst.net.nz",
     "content_scripts": [
         {
-            "matches": ["https://wrms.catalyst.net.nz/wr.php*"],
+            "matches": [
+                "https://wrms2-uat.servers.catalyst.net.nz/wr.php*",
+                "https://wrms2-staging.servers.catalyst.net.nz/wr.php*",
+                "https://wrms.catalyst.net.nz/wr.php*"
+            ],
             "css": ["css/col.css", "wrms-kanban.css"],
             "js": ["js/jquery.min.js", "js/jquery-ui.min.js", "js/underscore-min.js", "wrms-kanban.js"]
         }
