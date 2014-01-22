@@ -157,7 +157,7 @@
                         log.info('update_children', 'modifications in progress; discarding server updates');
                         return;
                     }
-                    __model = render_model(parse_model_from_json(JSON.parse(r)));
+                    __model = render_model(validate_model(parse_model_from_json(JSON.parse(r))));
                 });
             }
         }catch(ex){
@@ -222,7 +222,7 @@
                 if (new_cat){
                     new_cat = new_cat[1];
                 }else{
-                    log.error('kanban ul:receive', wr, 'Failed to determine parent class');
+                    log.error('ul:receive', wr, 'Failed to determine parent class');
                     return;
                 }
                 show_status_options(ui.item, new_cat, function (new_status, note){
@@ -239,9 +239,9 @@
                         contentType: 'application/x-www-form-urlencoded',
                         data: payload
                     }).fail(function(o, e){
-                        log.error('kanban ul:receive', wr + ' failed to update status', e);
+                        log.error('ul:receive', wr + ' failed to update status', e);
                     }).done(function(r){
-                        log.info('kanban ul:receive', 'updated ' + wr + ' to ' + new_status);
+                        log.info('ul:receive', 'updated ' + wr + ' to ' + new_status);
                         $(ui.item).removeClass('modified');
                         $(ui.item).find('span.status').text('[' + new_status + ']');
                         __model[wr].cat = new_cat;
@@ -403,6 +403,11 @@
         }));
     }
 
+    function validate_model(m){
+        _.each(m, function(v, k){ log.info('validate_model', k); });
+        return m;
+    }
+
     var kanban = {
         show: function(){
             $('#kanban-overlay').height($(document).height());
@@ -439,19 +444,17 @@
                 _.each(details.split(/\n/), function(line){
                     var override = line.match(/\[kanban:\s*([a-zA-Z ]+?)\s*->\s*([a-zA-Z ]+?)\s*\]/);
                     if (override){
-                        console.log(override[1] + '->' + override[2]);
+                        log.info('main', override[1] + '->' + override[2]);
                         _.each(__category_meta, function(meta){
-                            console.log(override[1] + '|before: ' + JSON.stringify(meta));
                             meta.statuses = _.without(meta.statuses, override[1]);
                             if (meta.name === override[2]){
                                 meta.statuses.push(override[1]);
                             }
-                            console.log(override[1] + '|after: ' + JSON.stringify(meta));
                         });
                     }
                 });
             }catch(ex){
-                console.log('Exception while reading WR description [[' + ex + ']]');
+                log.error('main', 'Exception while reading WR description [[' + ex + ']]');
             }
             $(document).keyup(function(e){
                 if (e.keyCode === 27){
@@ -463,14 +466,14 @@
                     log.error('load_children', 'unable to populate children', e);
                     return;
                 }
-                __model = render_model(r);
+                __model = render_model(validate_model(r));
             });
             if (window.location.href.match(/#kanban/)){
                 kanban.show();
             }
             setTimeout(update_children, __refresh_interval);
         }catch(ex){
-            log.error('wrms-kanban', 'Exception while adding Kanban menu entry', ex);
+            log.error('main', 'Exception while adding Kanban menu entry', ex);
         }
     });
 })();
