@@ -189,6 +189,10 @@ ul.kanban-backlog li {
   border: 1px solid #c00;
 }
 
+ul.kanban-backlog li.ghost {
+  background-color: #ffe4e4;
+  border-style: dashed;
+}
 ul.kanban-backlog li.heading,
 ul.kanban-backlog li span.alloc {
   color: #ffe4e4;
@@ -201,6 +205,10 @@ ul.kanban-this_week li {
   border: 1px solid #93c;
 }
 
+ul.kanban-this_week li.ghost {
+  background-color: #f5eafa;
+  border-style: dashed;
+}
 ul.kanban-this_week li.heading,
 ul.kanban-this_week li span.alloc {
   color: #f5eafa;
@@ -213,6 +221,10 @@ ul.kanban-cat_dev li {
   border: 1px solid #f80;
 }
 
+ul.kanban-cat_dev li.ghost {
+  background-color: #fff6df;
+  border-style: dashed;
+}
 ul.kanban-cat_dev li.heading,
 ul.kanban-cat_dev li span.alloc {
   color: #fff6df;
@@ -230,6 +242,10 @@ ul.kanban-cat_blocked li {
   border: 1px solid #c00;
 }
 
+ul.kanban-cat_blocked li.ghost {
+  background-color: #ffe4e4;
+  border-style: dashed;
+}
 ul.kanban-cat_blocked li.heading,
 ul.kanban-cat_blocked li span.alloc {
   color: #ffe4e4;
@@ -242,6 +258,11 @@ ul.kanban-client_uat li {
   border: 1px solid #690;
 }
 
+ul.kanban-client_uat li.ghost,
+ul.kanban-cat_test li.ghost {
+  background-color: #f0f8db;
+  border-style: dashed;
+}
 ul.kanban-client_uat li.heading,
 ul.kanban-client_uat li span.alloc,
 ul.kanban-cat_test li.heading,
@@ -256,6 +277,10 @@ ul.kanban-done li {
   border: 1px solid #09c;
 }
 
+ul.kanban-done li.ghost {
+  background-color: #e2f4fb;
+  border-style: dashed;
+}
 ul.kanban-done li.heading,
 ul.kanban-done li span.alloc {
   color: #e2f4fb;

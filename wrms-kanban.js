@@ -301,6 +301,9 @@
 
     function render_card(val, key){
         var card = mk('li', [], function(li){
+            if (val.ghost){
+                $(li).addClass('ghost');
+            }
             $(li).append(mk('span', ['wrno_pretty'], function(span){
                 $(span).append(mk('a', [], function(a){
                     $(a).attr('href', 'https://wrms.catalyst.net.nz/wr.php?edit=1&request_id=' + val.wr);
@@ -404,7 +407,42 @@
     }
 
     function validate_model(m){
-        _.each(m, function(v, k){ log.info('validate_model', k); });
+        var related_wrs = null;
+        $('table.wr-data-table').each(function(){
+            var to_match = ['This W/R', 'Link', 'Child', 'Brief', 'Status'];
+            $(this).find('thead:first th').each(function(){
+                if (to_match.length){
+                    if (to_match[0] === $(this).text()){
+                        to_match.shift();
+                    }
+                }
+            });
+            if (to_match.length === 0){
+                related_wrs = $(this);
+            }
+        });
+        if (related_wrs){
+            related_wrs.find('tbody tr').each(function(){
+                var w = $(this).find('td:nth-of-type(3)').text();
+                if (!m[w]){
+                    log.error('validate_model', 'ghost WR ' + w);
+                    var s = $(this).find('td:nth-of-type(5)').text();
+                    m[w] = {
+                        wr: w,
+                        status: s,
+                        brief: $(this).find('td:nth-of-type(4)').text(),
+                        cat: category_from_status(s),
+                        users: null,
+                        unapproved_hours: 0,
+                        approved_hours: 0,
+                        hours: 0,
+                        ghost: true
+                    };
+                }
+            });
+        }else{
+            log.info('validate_model', 'No related WRs found');
+        }
         return m;
     }
 
