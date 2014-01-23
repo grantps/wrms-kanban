@@ -478,17 +478,25 @@
             tmnu.append(mk('span', ['tmnu_right']));
 
             try{
+                function apply_override(stat, mname){
+                    log.info('apply_override', stat + '->' + mname);
+                    _.each(__category_meta, function(m){
+                        m.statuses = _.without(m.statuses, stat);
+                        if (m.name === mname){
+                            m.statuses.push(stat);
+                        }
+                    });
+                }
+                var org = $('th.prompt:contains(Organisation)').next().text();
+                if (org === 'NZ Registry Services'){
+                    apply_override('Pending QA', 'Test');
+                    apply_override('QA Approved', 'UAT');
+                }
                 var details = $('table.wr-details').find('tr:nth-of-type(13) > td').text();
                 _.each(details.split(/\n/), function(line){
                     var override = line.match(/\[kanban:\s*([a-zA-Z ]+?)\s*->\s*([a-zA-Z ]+?)\s*\]/);
                     if (override){
-                        log.info('main', override[1] + '->' + override[2]);
-                        _.each(__category_meta, function(meta){
-                            meta.statuses = _.without(meta.statuses, override[1]);
-                            if (meta.name === override[2]){
-                                meta.statuses.push(override[1]);
-                            }
-                        });
+                        apply_override(override[1], override[2]);
                     }
                 });
             }catch(ex){
