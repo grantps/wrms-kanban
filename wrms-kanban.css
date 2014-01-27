@@ -184,31 +184,19 @@
   cursor: pointer;
 }
 
-ul.kanban-backlog li {
-  background-color: #fff;
-  border: 1px solid #c00;
-}
-
-ul.kanban-backlog li.ghost {
-  background-color: #ffe4e4;
-  border-style: dashed;
-}
-ul.kanban-backlog li.heading,
-ul.kanban-backlog li span.alloc {
-  color: #ffe4e4;
-  background-color: #f44;
-  border: 1px solid #c00;
-}
-
+ul.kanban-backlog li,
 ul.kanban-this_week li {
   background-color: #fff;
   border: 1px solid #93c;
 }
 
+ul.kanban-backlog li.ghost,
 ul.kanban-this_week li.ghost {
   background-color: #f5eafa;
   border-style: dashed;
 }
+ul.kanban-backlog li.heading,
+ul.kanban-backlog li span.alloc,
 ul.kanban-this_week li.heading,
 ul.kanban-this_week li span.alloc {
   color: #f5eafa;
