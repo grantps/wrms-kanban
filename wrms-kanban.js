@@ -446,22 +446,19 @@
         return m;
     }
 
+    // We can't use anchors on WRMS > 2.10.1 :(
     var kanban = {
         show: function(){
             $('#kanban-overlay').height($(document).height());
             $('#kanban-overlay').show();
-            var h = window.location.href;
-            window.location.href = h + (h.match(/#kanban$/) ? '' :
-                                        h.match(/#$/)       ? 'kanban' :
-                                                              '#kanban');
         },
         hide: function(){
             $('#kanban-overlay').hide();
-            window.location.href = window.location.href.replace(/kanban$/, '');
         }
     };
 
     $(document).ready(function(){
+        var new_wrms = $('.tab-title').length;
         try{
             __parent_wr = $('#tmnu > a:nth-of-type(1)').text().match(/(\d+)/)[1];
 
@@ -492,7 +489,9 @@
                     apply_override('Pending QA', 'Test');
                     apply_override('QA Approved', 'UAT');
                 }
-                var details = $('table.wr-details').find('tr:nth-of-type(13) > td').text();
+                var details = new_wrms === 0
+                            ? $('table.wr-details').find('tr:nth-of-type(13) > td').text()
+                            : $('th.prompt:contains(Details)').next().text();
                 _.each(details.split(/\n/), function(line){
                     var override = line.match(/\[kanban:\s*([a-zA-Z ]+?)\s*->\s*([a-zA-Z ]+?)\s*\]/);
                     if (override){
@@ -514,9 +513,6 @@
                 }
                 __model = render_model(validate_model(r));
             });
-            if (window.location.href.match(/#kanban/)){
-                kanban.show();
-            }
             setTimeout(update_children, __refresh_interval);
         }catch(ex){
             log.error('main', 'Exception while adding Kanban menu entry', ex);
