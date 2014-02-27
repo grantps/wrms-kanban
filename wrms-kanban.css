@@ -34,6 +34,7 @@
   background-image: url(/wrms3static/images/header.png);
   background-repeat: no-repeat;
   background-position: center top;
+
 }
 
 #kanban-overlay li > span.wrno {
@@ -56,13 +57,6 @@
   font-weight: bold;
   width: 60%;
   display: block;
-}
-
-#kanban-overlay li > span.brief {
-  width: 100%;
-  padding: 15px 2px 0px 2px;
-  display: block;
-  margin: 5px 0px 5px 0px;
 }
 
 #kanban-overlay li div.budget_group {
@@ -182,6 +176,30 @@
 
 #kanban-overlay li.modified div.update > span.submit {
   cursor: pointer;
+}
+
+#kanban-overlay li > span.brief {
+  width: 100%;
+  padding: 15px 2px 0px 2px;
+  display: block;
+  margin: 5px 0px 5px 0px;
+}
+
+.kanban-done div.budget_group,
+.kanban-done div.user_group {
+  display: none;
+}
+
+.kanban-done span.wrno,
+.kanban-done span.wrno_pretty,
+.kanban-done span.status {
+}
+
+.kanban-done span.brief {
+  padding-top: 2px !important;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 ul.kanban-backlog li,
